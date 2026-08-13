@@ -2,21 +2,30 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 { 
-    [Header("Object References")]
-    public Camera camera;
+    /*[Header("Object References")]
+    public Camera camera;*/
 
-    [Header("Drag Rate")]
+    [Header("Rates")]
+    public float sprintBonusAmount;
+    public float walkPower;
+    public float jumpPower; 
+    public float crouchPower;
+    public float slidePower; 
+    public float dashPower; 
     public float dragAmount;
    
     [Header("Key Binds")]
     public KeyCode sprintBind;
+    public KeyCode dashBind;
+    public KeyCode crouchBind;
+
 
     Rigidbody rb;
     bool sprintBonusActive = false;
 
     void Start()
     {
-      rb = GetComponent<Rigidbody>(); 
+      rb = GetComponent<Rigidbody>();  
     }
 
     void Update() { 
@@ -24,63 +33,80 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void FixedUpdate() {
-      
-      Damping(dragAmount);
-      manageBonuses(); 
-    }
+      manageMovement(); 
+      Damping(dragAmount); 
+      Debug.Log(rb.linearVelocity.magnitude); 
+    } 
 
-    void manageBonuses() {
-      if (!sprintBonusActive && Input.GetKey(sprintBind)) {
-        runSpeedBonus();
-      }
-    }
-
-    void manageMovement() {
+    void manageMovement() { //TODO: add keybind customisability in headers 
       if (Input.GetKey(KeyCode.W)) {
         moveForward();  
+      } else if (Input.GetKey(KeyCode.A)) {
+        moveLeft();
+      } else if (Input.GetKey(KeyCode.S)) {
+        moveBack();
+      } else if (Input.GetKey(KeyCode.D)) {
+        moveRight(); 
+      } else if (Input.GetKeyDown(KeyCode.Space)) {
+        doJump();
+      } else if (Input.GetKeyDown(dashBind)) {
+        doDash();
+      } else if (Input.GetKey(crouchBind)) {
+        checkCrouchOrSlide();
+      } else if (Input.GetKey(sprintBind)) {
+        manageSprintMovement();
       }
+    }
+
+    void manageSprintMovement() {
+      if (!sprintBonusActive && Input.GetKey(sprintBind)) { 
+        runSpeedBonus(); 
+      } else if (sprintBonusActive && !Input.GetKey(sprintBind) ) {
+        sprintBonusActive = false;
+      } 
+    }
+
+    void checkCrouchOrSlide() {
+      //if (rb.linearVelocity.magnitude >)
     }
 
     void runSpeedBonus() {
-      rb.linearVelocity = new Vector3(rb.linearVelocity.x * 1.3,
+      sprintBonusActive = true; 
+      rb.linearVelocity = new Vector3(rb.linearVelocity.x * sprintBonusAmount,
           rb.linearVelocity.y,
-          rb.linearVelocity.z * 1.3);
+          rb.linearVelocity.z * sprintBonusAmount);
     }
 
     void moveForward() {
-      rb.AddForce(gameObject.transform.forward * 10f, ForceMode.Force);
+      rb.AddForce(gameObject.transform.forward * walkPower, ForceMode.Force);
     }
 
     void moveLeft() {
-
+      rb.AddForce(-gameObject.transform.right * walkPower, ForceMode.Force);
     }
 
     void moveRight() {
-
+      rb.AddForce(gameObject.transform.right * walkPower, ForceMode.Force);
     }
 
     void moveBack() {
-
+      rb.AddForce(-gameObject.transform.forward * walkPower, ForceMode.Force);
     }
 
     void doJump() {
-
+      rb.AddForce(gameObject.transform.up * jumpPower, ForceMode.Impulse); 
     }
 
     void doSlide() {
-
+      rb.AddForce(gameObject.transform.forward * slidePower, ForceMode.Force); 
     }
 
     void doCrouch() {
-
-    }
-
-    void doSlide() {
-
-    }
+      rb.AddForce(gameObject.transform.forward * crouchPower, ForceMode.Force);
+    } 
 
     void doDash() {
-
+      rb.AddForce(gameObject.transform.forward * dashPower, ForceMode.Impulse);
     }
 
     void startWallRun() {
