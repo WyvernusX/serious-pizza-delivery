@@ -17,7 +17,7 @@ public class CameraMove : MonoBehaviour
     void FixedUpdate() {
       float mouseX = Input.GetAxis("Mouse X");
       float mouseY = Input.GetAxis("Mouse Y");
-      float mouseSensitivity = 1000f;
+      float mouseSensitivity = 500f;
 
       cameraItem.transform.Rotate(Vector3.up * (mouseX * mouseSensitivity) * Time.deltaTime);
       cameraItem.transform.Rotate(Vector3.right * (mouseY * mouseSensitivity) * Time.deltaTime);
