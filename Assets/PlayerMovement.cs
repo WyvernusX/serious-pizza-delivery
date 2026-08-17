@@ -1,8 +1,9 @@
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour { 
-    /*[Header("Object References")]
-    public Camera camera;*/
+    
+    [Header("Object References")]
+    public GameObject collision; 
 
     [Header("Cooldowns")]
     public float dashCooldown = .5f;
@@ -27,8 +28,9 @@ public class PlayerMovement : MonoBehaviour {
 
     Vector3 moveDir; 
 
-    Rigidbody rb;
+    public Rigidbody rb;
     
+    public Vector3 wallRunJumpDirection; 
     bool sprintBonusActive = false; 
     public  bool isWallRunning = false;
     bool isJumping = false;
@@ -42,33 +44,35 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void Update() {  
-      manageSpecialMovement();  
+      if (!isWallRunning) {
+        manageSpecialMovement();
+      }   
       Damping(dragAmount); 
       applySpeedLimit(); 
     }
 
-    void FixedUpdate() { 
+    void FixedUpdate() {  
       manageMovement();   
-      Debug.Log(rb.linearVelocity.magnitude); 
+      //Debug.Log(rb.linearVelocity.magnitude); 
     } 
 
     void manageMovement() { 
-      if (Input.GetKey(KeyCode.W)) { 
+      if (Input.GetKey(KeyCode.W) && !isWallRunning) { 
         moveForward();  
       } 
-      if (Input.GetKey(KeyCode.A)) {
+      if (Input.GetKey(KeyCode.A) && !isWallRunning) {
         moveLeft();
       } 
-      if (Input.GetKey(KeyCode.S)) {
+      if (Input.GetKey(KeyCode.S) && !isWallRunning) {
         moveBack();
       } 
-      if (Input.GetKey(KeyCode.D)) {
+      if (Input.GetKey(KeyCode.D) && !isWallRunning) {
         moveRight(); 
       }
-      if (Input.GetKey(jumpBind) && (!isJumping || canJump)  && isWallRunning) {
-        doWallJump(); 
-        Invoke("resetWallJump", jumpCooldown); 
-      } else if (Input.GetKey(jumpBind) && !isJumping && canJump && onGround) { 
+      if (Input.GetKey(jumpBind) && (!isJumping || canJump) && isWallRunning) {
+        doWallJump(wallRunJumpDirection); 
+        //Invoke("resetWallJump", jumpCooldown); 
+      } else if (Input.GetKey(jumpBind) && !isJumping && canJump && onGround && !isWallRunning) { 
         doJump();
         Invoke("resetJump", jumpCooldown); 
       }
@@ -130,11 +134,11 @@ public class PlayerMovement : MonoBehaviour {
       rb.AddForce(transform.up * jumpPower, ForceMode.Impulse); 
     }
 
-    void doWallJump() {
+    void doWallJump(Vector3 jumpDirection) {
       isJumping = true; 
-      rb.AddForce(gameObject.transform.forward * (dashPower / 10), ForceMode.Impulse); 
-      rb.AddForce(gameObject.transform.up * (jumpPower / 10), ForceMode.Impulse); 
-      //rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y + 2f, rb.linearVelocity.z);  
+      rb.AddForce(jumpDirection * (dashPower), ForceMode.Impulse); 
+      //rb.AddForce(gameObject.transform.up * (jumpPower / 30), ForceMode.Impulse); 
+      rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y + 0.5f, rb.linearVelocity.z);  
     }
 
     void doSlide() {  
@@ -164,28 +168,24 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     public void startWallRun() {
+      Debug.Log("start fn called"); 
+      resetJump();  
       rb.useGravity = false; 
       isWallRunning = true;
-      resetJump(); 
+      rb.AddForce(gameObject.transform.forward * dashPower, ForceMode.Impulse);
       rb.AddForce(gameObject.transform.forward * wallRunBonusAmount, ForceMode.Force);
     }
 
     public void endWallRun() {
-      rb.useGravity = true;
+      //rb.useGravity = true;
+      Debug.Log("end fn called"); 
+      resetJump(); 
       isWallRunning = false; 
       if (isJumping) {
-        doWallJump();
-      }
-      /*if (!isJumping) {
-        rb.AddForce(gameObject.transform.forward * (dashPower / 2), ForceMode.Impulse); 
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y + 5f, rb.linearVelocity.z);
-      }*/ 
-    }
-
-    void idleWallRun() {
-      rb.useGravity = true; 
-      isWallRunning = false;
-    }
+        doWallJump(wallRunJumpDirection);
+        Debug.Log("wall jumped"); 
+      } 
+    } 
 
      bool exceedingLimit() {
       if (sprintBonusActive && rb.linearVelocity.magnitude > 20f) {
@@ -211,10 +211,14 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void Damping(float dampRate) { 
-      if (!isJumping) {
+      if (isWallRunning) {
         rb.linearVelocity = new Vector3(rb.linearVelocity.x - (rb.linearVelocity.magnitude / 2) * Time.deltaTime, 
-          rb.linearVelocity.y - (rb.linearVelocity.magnitude / 2) * Time.deltaTime, 
+          rb.linearVelocity.y, 
           rb.linearVelocity.z - (rb.linearVelocity.magnitude / 2) * Time.deltaTime);
+      } else if (!isJumping) {
+        rb.linearVelocity = new Vector3((rb.linearVelocity.x - (rb.linearVelocity.magnitude / 10)) * Time.deltaTime, 
+          (rb.linearVelocity.y - (rb.linearVelocity.magnitude / 200)) * Time.deltaTime, 
+          (rb.linearVelocity.z - (rb.linearVelocity.magnitude / 200)) * Time.deltaTime);
       } 
     }
 }
