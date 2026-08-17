@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - CanWallRun
+  - Ground
+  - Pizza
+  - FinishObj
   layers:
   - Default
   - TransparentFX

@@ -32,9 +32,9 @@ public class PlayerMovement : MonoBehaviour {
     bool sprintBonusActive = false; 
     public  bool isWallRunning = false;
     bool isJumping = false;
-    public bool onGround = false;
-    bool isDashing = false; 
-    bool canJump = true;
+    public bool onGround = true;
+    bool isDashing = false;  
+    public bool canJump = true;
 
     void Start()
     {
@@ -44,10 +44,11 @@ public class PlayerMovement : MonoBehaviour {
     void Update() {  
       manageSpecialMovement();  
       Damping(dragAmount); 
+      applySpeedLimit(); 
     }
 
-    void FixedUpdate() {
-      manageMovement();  
+    void FixedUpdate() { 
+      manageMovement();   
       Debug.Log(rb.linearVelocity.magnitude); 
     } 
 
@@ -63,14 +64,18 @@ public class PlayerMovement : MonoBehaviour {
       } 
       if (Input.GetKey(KeyCode.D)) {
         moveRight(); 
-      } 
-    }
-
-    void manageSpecialMovement() {
-      if (Input.GetKeyDown(jumpBind) && !isJumping && canJump) { 
+      }
+      if (Input.GetKey(jumpBind) && (!isJumping || canJump)  && isWallRunning) {
+        doWallJump(); 
+        Invoke("resetWallJump", jumpCooldown); 
+      } else if (Input.GetKey(jumpBind) && !isJumping && canJump && onGround) { 
         doJump();
         Invoke("resetJump", jumpCooldown); 
-      } else if (Input.GetKeyDown(dashBind) && !isDashing) {
+      }
+    }
+
+    void manageSpecialMovement() {  
+      if (Input.GetKeyDown(dashBind) && !isDashing) {
         doDash();
         Invoke("resetDash", dashCooldown); 
       } else if (Input.GetKey(crouchBind)) {
@@ -78,7 +83,7 @@ public class PlayerMovement : MonoBehaviour {
       } else if (Input.GetKey(sprintBind)) {
         manageSprintMovement();
       }
-    }
+    } 
 
     void manageSprintMovement() {
       if (!sprintBonusActive && Input.GetKey(sprintBind)) { 
@@ -120,9 +125,16 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void doJump() { 
-      isJumping = true; 
+      isJumping = true;  
       canJump = false; 
       rb.AddForce(transform.up * jumpPower, ForceMode.Impulse); 
+    }
+
+    void doWallJump() {
+      isJumping = true; 
+      rb.AddForce(gameObject.transform.forward * (dashPower / 10), ForceMode.Impulse); 
+      rb.AddForce(gameObject.transform.up * (jumpPower / 10), ForceMode.Impulse); 
+      //rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y + 2f, rb.linearVelocity.z);  
     }
 
     void doSlide() {  
@@ -143,26 +155,66 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void resetJump() {
-      isJumping = false;
+      isJumping = false; 
       canJump = true; 
+    }
+
+    void resetWallJump() {
+      isJumping = false;
     }
 
     public void startWallRun() {
       rb.useGravity = false; 
-      isWallRunning = true; 
+      isWallRunning = true;
+      resetJump(); 
       rb.AddForce(gameObject.transform.forward * wallRunBonusAmount, ForceMode.Force);
     }
 
     public void endWallRun() {
       rb.useGravity = true;
       isWallRunning = false; 
-      rb.AddForce(gameObject.transform.forward * (dashPower / 2), ForceMode.Impulse);
-      rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y + 2f, rb.linearVelocity.z); 
-    } 
+      if (isJumping) {
+        doWallJump();
+      }
+      /*if (!isJumping) {
+        rb.AddForce(gameObject.transform.forward * (dashPower / 2), ForceMode.Impulse); 
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y + 5f, rb.linearVelocity.z);
+      }*/ 
+    }
+
+    void idleWallRun() {
+      rb.useGravity = true; 
+      isWallRunning = false;
+    }
+
+     bool exceedingLimit() {
+      if (sprintBonusActive && rb.linearVelocity.magnitude > 20f) {
+        return true;
+      } else if (!sprintBonusActive && rb.linearVelocity.magnitude > 10f) {
+        return true;
+      }
+      return false;
+    }
+
+    void applySpeedLimit() {
+      if (exceedingLimit() && sprintBonusActive) { 
+        float diagonalMoveSpeed = Mathf.Sqrt(20*20);
+        Vector3 forward = transform.forward * diagonalMoveSpeed;
+        Vector3 right = transform.right * diagonalMoveSpeed; 
+        rb.linearVelocity = Vector3.ClampMagnitude(rb.linearVelocity, 20); 
+      } else if (exceedingLimit() && sprintBonusActive) {
+        float diagonalMoveSpeed = Mathf.Sqrt(10*10);
+        Vector3 forward = transform.forward * diagonalMoveSpeed;
+        Vector3 right = transform.right * diagonalMoveSpeed; 
+        rb.linearVelocity = Vector3.ClampMagnitude(rb.linearVelocity, 10);
+      } 
+    }
 
     void Damping(float dampRate) { 
-      rb.linearVelocity = new Vector3(rb.linearVelocity.x - dampRate * Time.deltaTime, 
-          rb.linearVelocity.y - dampRate * Time.deltaTime, 
-          rb.linearVelocity.z - dampRate * Time.deltaTime);
+      if (!isJumping) {
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x - (rb.linearVelocity.magnitude / 2) * Time.deltaTime, 
+          rb.linearVelocity.y - (rb.linearVelocity.magnitude / 2) * Time.deltaTime, 
+          rb.linearVelocity.z - (rb.linearVelocity.magnitude / 2) * Time.deltaTime);
+      } 
     }
 }

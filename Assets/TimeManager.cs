@@ -8,13 +8,23 @@ public class TimeManager : MonoBehaviour
       
     }
  
-    void Update()
-    {
-      time += Time.deltaTime; 
-      //Debug.Log($"{time}"); 
+    void Update() { 
+ 
     }
 
     void FixedUpdate() {
 
+    }
+
+    void startTimer() {
+      time += Time.deltaTime;
+    }
+
+    void endTimer() {
+
+    }
+
+    void displayTime() {
+      Debug.Log($"{time}");
     }
 }
