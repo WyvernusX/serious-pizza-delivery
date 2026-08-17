@@ -1,11 +1,15 @@
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
-{ 
+public class PlayerMovement : MonoBehaviour { 
     /*[Header("Object References")]
     public Camera camera;*/
 
-    [Header("Rates")]
+    [Header("Cooldowns")]
+    public float dashCooldown = .5f;
+    public float slideCooldown = 1f;
+    public float jumpCooldown = .25f;
+
+    [Header("Rates / Bonuses")]
     public float sprintBonusAmount;
     public float walkPower;
     public float jumpPower; 
@@ -13,44 +17,62 @@ public class PlayerMovement : MonoBehaviour
     public float slidePower; 
     public float dashPower; 
     public float dragAmount;
-   
+    public float wallRunBonusAmount; 
+
     [Header("Key Binds")]
     public KeyCode sprintBind;
     public KeyCode dashBind;
     public KeyCode crouchBind;
+    public KeyCode jumpBind;
 
+    Vector3 moveDir; 
 
     Rigidbody rb;
-    bool sprintBonusActive = false;
+    
+    bool sprintBonusActive = false; 
+    public  bool isWallRunning = false;
+    bool isJumping = false;
+    public bool onGround = false;
+    bool isDashing = false; 
+    bool canJump = true;
 
     void Start()
     {
-      rb = GetComponent<Rigidbody>();  
+      rb = GetComponent<Rigidbody>();   
     }
 
-    void Update() { 
-      //nothing 
+    void Update() {  
+      manageSpecialMovement();  
+      Damping(dragAmount); 
     }
 
     void FixedUpdate() {
-      manageMovement(); 
-      Damping(dragAmount); 
+      manageMovement();  
       Debug.Log(rb.linearVelocity.magnitude); 
     } 
 
-    void manageMovement() { //TODO: add keybind customisability in headers 
-      if (Input.GetKey(KeyCode.W)) {
+    void manageMovement() { 
+      if (Input.GetKey(KeyCode.W)) { 
         moveForward();  
-      } else if (Input.GetKey(KeyCode.A)) {
+      } 
+      if (Input.GetKey(KeyCode.A)) {
         moveLeft();
-      } else if (Input.GetKey(KeyCode.S)) {
+      } 
+      if (Input.GetKey(KeyCode.S)) {
         moveBack();
-      } else if (Input.GetKey(KeyCode.D)) {
+      } 
+      if (Input.GetKey(KeyCode.D)) {
         moveRight(); 
-      } else if (Input.GetKeyDown(KeyCode.Space)) {
+      } 
+    }
+
+    void manageSpecialMovement() {
+      if (Input.GetKeyDown(jumpBind) && !isJumping && canJump) { 
         doJump();
-      } else if (Input.GetKeyDown(dashBind)) {
+        Invoke("resetJump", jumpCooldown); 
+      } else if (Input.GetKeyDown(dashBind) && !isDashing) {
         doDash();
+        Invoke("resetDash", dashCooldown); 
       } else if (Input.GetKey(crouchBind)) {
         checkCrouchOrSlide();
       } else if (Input.GetKey(sprintBind)) {
@@ -67,7 +89,11 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void checkCrouchOrSlide() {
-      //if (rb.linearVelocity.magnitude >)
+      if (rb.linearVelocity.magnitude >= 6.5f) { 
+        Invoke("doSlide", slideCooldown); 
+      } else { 
+        doCrouch(); 
+      }
     }
 
     void runSpeedBonus() {
@@ -78,44 +104,61 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void moveForward() {
-      rb.AddForce(gameObject.transform.forward * walkPower, ForceMode.Force);
+      rb.AddForce(transform.forward * walkPower, ForceMode.Force);
     }
 
     void moveLeft() {
-      rb.AddForce(-gameObject.transform.right * walkPower, ForceMode.Force);
+      rb.AddForce(-transform.right * walkPower, ForceMode.Force);
     }
 
     void moveRight() {
-      rb.AddForce(gameObject.transform.right * walkPower, ForceMode.Force);
+      rb.AddForce(transform.right * walkPower, ForceMode.Force);
     }
 
     void moveBack() {
-      rb.AddForce(-gameObject.transform.forward * walkPower, ForceMode.Force);
+      rb.AddForce(-transform.forward * walkPower, ForceMode.Force);
     }
 
-    void doJump() {
-      rb.AddForce(gameObject.transform.up * jumpPower, ForceMode.Impulse); 
+    void doJump() { 
+      isJumping = true; 
+      canJump = false; 
+      rb.AddForce(transform.up * jumpPower, ForceMode.Impulse); 
     }
 
-    void doSlide() {
-      rb.AddForce(gameObject.transform.forward * slidePower, ForceMode.Force); 
+    void doSlide() {  
+      rb.AddForce(transform.forward * slidePower, ForceMode.Force);  
     }
 
     void doCrouch() {
-      rb.AddForce(gameObject.transform.forward * crouchPower, ForceMode.Force);
+      rb.AddForce(transform.forward * crouchPower, ForceMode.Force);
     } 
 
     void doDash() {
+      isDashing = true; 
       rb.AddForce(gameObject.transform.forward * dashPower, ForceMode.Impulse);
     }
 
-    void startWallRun() {
-
+    void resetDash() {
+      isDashing = false;
     }
 
-    void endWallRun() {
-
+    void resetJump() {
+      isJumping = false;
+      canJump = true; 
     }
+
+    public void startWallRun() {
+      rb.useGravity = false; 
+      isWallRunning = true; 
+      rb.AddForce(gameObject.transform.forward * wallRunBonusAmount, ForceMode.Force);
+    }
+
+    public void endWallRun() {
+      rb.useGravity = true;
+      isWallRunning = false; 
+      rb.AddForce(gameObject.transform.forward * (dashPower / 2), ForceMode.Impulse);
+      rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y + 2f, rb.linearVelocity.z); 
+    } 
 
     void Damping(float dampRate) { 
       rb.linearVelocity = new Vector3(rb.linearVelocity.x - dampRate * Time.deltaTime, 
