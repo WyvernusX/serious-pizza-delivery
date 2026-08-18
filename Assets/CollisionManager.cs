@@ -10,22 +10,22 @@ public class CollisionManager : MonoBehaviour
       exportTo(jumpDir); 
 
       player.canJump = true; 
-      if (other.gameObject.CompareTag("FinishObj")) {
+     
+      if (other.gameObject.CompareTag("Ground")) {
+        player.onGround = true; 
+      } else if (other.gameObject.CompareTag("FinishObj")) {
         Debug.Log("you won!"); 
-      } else if (other.gameObject.CompareTag("CanWallRun")) {
-        Debug.Log("wallrun beginner"); 
+      } else if (other.gameObject.CompareTag("CanWallRun")) { 
+        Debug.Log("starting"); 
         player.startWallRun(); 
-      } else if (other.gameObject.CompareTag("Ground") || other.gameObject.CompareTag("CanWallRun")) {
-        player.onGround = true;
-        Debug.Log("wallrun termination 2"); 
-        player.endWallRun(); 
-      } 
+      }  
     }
 
     void OnCollisionExit(Collision other) {
-      if (player.isWallRunning) {
+      if (player.isWallRunning && other.gameObject.CompareTag("CanWallRun")) {
+        Debug.Log("ending"); 
         player.endWallRun();
-        Debug.Log("wallrun termination");  
+        player.rb.useGravity = true;  
       } 
       if (other.gameObject.CompareTag("Ground")) {
         player.onGround = false;

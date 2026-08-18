@@ -52,11 +52,11 @@ public class PlayerMovement : MonoBehaviour {
     void FixedUpdate() {  
       manageMovement();   
       //Debug.Log(rb.linearVelocity.magnitude); 
-      if (isWallRunning && rb.linearVelocity.magnitude < 1.5f) {
+      /*if (isWallRunning && rb.linearVelocity.magnitude < 1.5f) {
         antiWallRunIdle();
-      } 
+      }*/ 
       Damping(dragAmount); 
-      applySpeedLimit(); 
+      applySpeedLimit();  
     } 
 
     void manageMovement() { 
@@ -141,7 +141,7 @@ public class PlayerMovement : MonoBehaviour {
       isJumping = true; 
       rb.AddForce(jumpDirection * (dashPower * 1.3f), ForceMode.Impulse); 
       //rb.AddForce(gameObject.transform.up * (jumpPower / 30), ForceMode.Impulse); 
-      rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y + 0.3f, rb.linearVelocity.z);  
+      //rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y + 0.3f, rb.linearVelocity.z);  
     }
 
     void doSlide() {  
@@ -170,19 +170,32 @@ public class PlayerMovement : MonoBehaviour {
       isJumping = false;
     }
 
-    public void startWallRun() { 
-      resetJump();  
+    void killInitialWallRunVelocity() {
+      rb.linearVelocity = new Vector3(0f, 0f, 0f);
+    } 
+
+    void addWallRunInitialVelocity() {
+      if (rb.linearVelocity.magnitude <= 2f) {
+        doDash();
+        resetDash();
+      }
+    }
+
+    public void startWallRun() {  
+      killInitialWallRunVelocity(); 
+      addWallRunInitialVelocity(); 
+      resetJump();   
+      Debug.Log("wallrun started"); 
       rb.useGravity = false; 
-      isWallRunning = true;
+      isWallRunning = true; 
       rb.AddForce(gameObject.transform.forward * dashPower, ForceMode.Impulse);
       rb.AddForce(gameObject.transform.forward * wallRunBonusAmount, ForceMode.Force);
     }
 
-    public void endWallRun() {
-      rb.useGravity = true; 
+    public void endWallRun() { 
       resetJump(); 
       isWallRunning = false;   
-    } 
+    }
 
      bool exceedingLimit() {
       if (sprintBonusActive && rb.linearVelocity.magnitude > 20f) {
@@ -212,7 +225,7 @@ public class PlayerMovement : MonoBehaviour {
       } 
     }
 
-    void Damping(float dampRate) {
+    void Damping(float dampRate) { 
       rb.AddForce(-rb.linearVelocity.normalized * (rb.linearVelocity.magnitude * 0.9f), ForceMode.Force); 
     }
 }
