@@ -14,17 +14,18 @@ public class CollisionManager : MonoBehaviour
         Debug.Log("you won!"); 
       } else if (other.gameObject.CompareTag("CanWallRun")) {
         Debug.Log("wallrun beginner"); 
-        player.startWallRun();
-      } else if (other.gameObject.CompareTag("Ground")) {
+        player.startWallRun(); 
+      } else if (other.gameObject.CompareTag("Ground") || other.gameObject.CompareTag("CanWallRun")) {
         player.onGround = true;
+        Debug.Log("wallrun termination 2"); 
+        player.endWallRun(); 
       } 
     }
 
     void OnCollisionExit(Collision other) {
       if (player.isWallRunning) {
         player.endWallRun();
-        Debug.Log("wallrun termination"); 
-        player.rb.useGravity = true; 
+        Debug.Log("wallrun termination");  
       } 
       if (other.gameObject.CompareTag("Ground")) {
         player.onGround = false;

@@ -47,13 +47,16 @@ public class PlayerMovement : MonoBehaviour {
       if (!isWallRunning) {
         manageSpecialMovement();
       }   
-      Damping(dragAmount); 
-      applySpeedLimit(); 
     }
 
     void FixedUpdate() {  
       manageMovement();   
       //Debug.Log(rb.linearVelocity.magnitude); 
+      if (isWallRunning && rb.linearVelocity.magnitude < 1.5f) {
+        antiWallRunIdle();
+      } 
+      Damping(dragAmount); 
+      applySpeedLimit(); 
     } 
 
     void manageMovement() { 
@@ -146,7 +149,7 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void doCrouch() {
-      rb.AddForce(transform.forward * crouchPower, ForceMode.Force);
+      Damping(crouchPower); 
     } 
 
     void doDash() {
@@ -176,7 +179,7 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     public void endWallRun() {
-      //rb.useGravity = true; 
+      rb.useGravity = true; 
       resetJump(); 
       isWallRunning = false;   
     } 
@@ -209,16 +212,7 @@ public class PlayerMovement : MonoBehaviour {
       } 
     }
 
-    void Damping(float dampRate) { 
-      if (isWallRunning) {
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x - ((rb.linearVelocity.magnitude * 0.9f) * Time.deltaTime), 
-          rb.linearVelocity.y, 
-          rb.linearVelocity.z - ((rb.linearVelocity.magnitude * 0.9f) * Time.deltaTime));
-
-      } else if (!isJumping) {
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x - ((rb.linearVelocity.magnitude * 0.9f) * Time.deltaTime), 
-          (rb.linearVelocity.y - (rb.linearVelocity.magnitude * 0.9f) * Time.deltaTime), 
-          rb.linearVelocity.z - ((rb.linearVelocity.magnitude * 0.9f) * Time.deltaTime));
-      } 
+    void Damping(float dampRate) {
+      rb.AddForce(-rb.linearVelocity.normalized * (rb.linearVelocity.magnitude * 0.9f), ForceMode.Force); 
     }
 }
