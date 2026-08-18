@@ -69,10 +69,10 @@ public class PlayerMovement : MonoBehaviour {
       if (Input.GetKey(KeyCode.D) && !isWallRunning) {
         moveRight(); 
       }
-      if (Input.GetKey(jumpBind) && (!isJumping || canJump) && isWallRunning) {
+      if (Input.GetKey(jumpBind) && (!isJumping || canJump) && isWallRunning) { 
         doWallJump(wallRunJumpDirection); 
         //Invoke("resetWallJump", jumpCooldown); 
-      } else if (Input.GetKey(jumpBind) && !isJumping && canJump && onGround && !isWallRunning) { 
+      } else if (Input.GetKey(jumpBind) && !isJumping && canJump && onGround && !isWallRunning) {  
         doJump();
         Invoke("resetJump", jumpCooldown); 
       }
@@ -136,9 +136,9 @@ public class PlayerMovement : MonoBehaviour {
 
     void doWallJump(Vector3 jumpDirection) {
       isJumping = true; 
-      rb.AddForce(jumpDirection * (dashPower), ForceMode.Impulse); 
+      rb.AddForce(jumpDirection * (dashPower * 1.3f), ForceMode.Impulse); 
       //rb.AddForce(gameObject.transform.up * (jumpPower / 30), ForceMode.Impulse); 
-      rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y + 0.5f, rb.linearVelocity.z);  
+      rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y + 0.3f, rb.linearVelocity.z);  
     }
 
     void doSlide() {  
@@ -167,8 +167,7 @@ public class PlayerMovement : MonoBehaviour {
       isJumping = false;
     }
 
-    public void startWallRun() {
-      Debug.Log("start fn called"); 
+    public void startWallRun() { 
       resetJump();  
       rb.useGravity = false; 
       isWallRunning = true;
@@ -177,14 +176,9 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     public void endWallRun() {
-      //rb.useGravity = true;
-      Debug.Log("end fn called"); 
+      //rb.useGravity = true; 
       resetJump(); 
-      isWallRunning = false; 
-      if (isJumping) {
-        doWallJump(wallRunJumpDirection);
-        Debug.Log("wall jumped"); 
-      } 
+      isWallRunning = false;   
     } 
 
      bool exceedingLimit() {
@@ -194,6 +188,11 @@ public class PlayerMovement : MonoBehaviour {
         return true;
       }
       return false;
+    }
+
+    void antiWallRunIdle() {
+      isWallRunning = false;
+      resetJump();
     }
 
     void applySpeedLimit() {
@@ -212,13 +211,14 @@ public class PlayerMovement : MonoBehaviour {
 
     void Damping(float dampRate) { 
       if (isWallRunning) {
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x - (rb.linearVelocity.magnitude / 2) * Time.deltaTime, 
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x - ((rb.linearVelocity.magnitude * 0.9f) * Time.deltaTime), 
           rb.linearVelocity.y, 
-          rb.linearVelocity.z - (rb.linearVelocity.magnitude / 2) * Time.deltaTime);
+          rb.linearVelocity.z - ((rb.linearVelocity.magnitude * 0.9f) * Time.deltaTime));
+
       } else if (!isJumping) {
-        rb.linearVelocity = new Vector3((rb.linearVelocity.x - (rb.linearVelocity.magnitude / 10)) * Time.deltaTime, 
-          (rb.linearVelocity.y - (rb.linearVelocity.magnitude / 200)) * Time.deltaTime, 
-          (rb.linearVelocity.z - (rb.linearVelocity.magnitude / 200)) * Time.deltaTime);
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x - ((rb.linearVelocity.magnitude * 0.9f) * Time.deltaTime), 
+          (rb.linearVelocity.y - (rb.linearVelocity.magnitude * 0.9f) * Time.deltaTime), 
+          rb.linearVelocity.z - ((rb.linearVelocity.magnitude * 0.9f) * Time.deltaTime));
       } 
     }
 }

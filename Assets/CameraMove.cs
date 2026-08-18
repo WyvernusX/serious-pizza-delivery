@@ -13,7 +13,7 @@ public class CameraMove : MonoBehaviour
     {
       float mouseX = Input.GetAxis("Mouse X");
       float mouseY = Input.GetAxis("Mouse Y");
-      float mouseSensitivity = 1000f;
+      float mouseSensitivity = 2000f;
  
       gameObject.transform.Rotate(Vector3.up * (mouseX * mouseSensitivity) * Time.deltaTime);
       cameraItem.transform.Rotate(Vector3.right * (-mouseY * mouseSensitivity) * Time.deltaTime); 

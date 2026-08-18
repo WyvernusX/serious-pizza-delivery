@@ -13,6 +13,7 @@ public class CollisionManager : MonoBehaviour
       if (other.gameObject.CompareTag("FinishObj")) {
         Debug.Log("you won!"); 
       } else if (other.gameObject.CompareTag("CanWallRun")) {
+        Debug.Log("wallrun beginner"); 
         player.startWallRun();
       } else if (other.gameObject.CompareTag("Ground")) {
         player.onGround = true;
@@ -22,6 +23,7 @@ public class CollisionManager : MonoBehaviour
     void OnCollisionExit(Collision other) {
       if (player.isWallRunning) {
         player.endWallRun();
+        Debug.Log("wallrun termination"); 
         player.rb.useGravity = true; 
       } 
       if (other.gameObject.CompareTag("Ground")) {
