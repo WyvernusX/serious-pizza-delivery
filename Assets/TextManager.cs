@@ -20,4 +20,8 @@ public class TextManager : MonoBehaviour {
       movementText.SetText($"{movement.rb.linearVelocity.magnitude:F2} u/s"); 
       pizzaText.SetText($"{pizza.pizza} / 3 pizza"); 
     }
+
+    void displayScore(TMP_Text scoreText, int score) {
+      scoreText.SetText(score);
+    }
 }

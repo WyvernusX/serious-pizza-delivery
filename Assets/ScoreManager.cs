@@ -1,10 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro; 
 
 public class ScoreManager : MonoBehaviour
 {     
     public TriggerManager pizza; 
     public TimeManager timeScript;
+    public TextManager textScript;
 
     public int score = 0;
     public string rating = "Z"; 
