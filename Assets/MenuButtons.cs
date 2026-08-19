@@ -32,10 +32,14 @@ public class MenuButtons : MonoBehaviour
     }
 
     public void switchToMain() {
-      SceneManager.LoadScene("SampleScene");
+      SceneManager.LoadScene("UI");
+    }
+
+    public void switchToLevelSelect() {
+      SceneManager.LoadScene("LevelSelection");
     }
   
-    public void switchToLevelSelect(int levelNum) {
+    public void switchToLevel(int levelNum) {
       SceneManager.LoadScene(dict[levelNum]);
     }
 }
