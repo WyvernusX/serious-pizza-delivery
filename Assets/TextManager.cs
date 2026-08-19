@@ -22,6 +22,6 @@ public class TextManager : MonoBehaviour {
     }
 
     void displayScore(TMP_Text scoreText, int score) {
-      scoreText.SetText(score);
+      scoreText.SetText($"ratig: {score}");
     }
 }
