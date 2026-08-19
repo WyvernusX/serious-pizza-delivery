@@ -31,12 +31,14 @@ public class PlayerMovement : MonoBehaviour {
     public Rigidbody rb;
     
     public Vector3 wallRunJumpDirection; 
+    public Vector3 wallRunDashDirection; 
     bool sprintBonusActive = false; 
     public  bool isWallRunning = false;
     bool isJumping = false;
     public bool onGround = true;
     bool isDashing = false;  
     public bool canJump = true;
+    bool isSliding = false;
 
     void Start()
     {
@@ -100,9 +102,10 @@ public class PlayerMovement : MonoBehaviour {
       } 
     }
 
-    void checkCrouchOrSlide() {
-      if (rb.linearVelocity.magnitude >= 6.5f) { 
-        Invoke("doSlide", slideCooldown); 
+    void checkCrouchOrSlide() { 
+      if (rb.linearVelocity.magnitude >= 6.5f && !isSliding) { 
+        doSlide(); 
+        Invoke("resetSlide", slideCooldown); 
       } else { 
         doCrouch(); 
       }
@@ -139,13 +142,12 @@ public class PlayerMovement : MonoBehaviour {
 
     void doWallJump(Vector3 jumpDirection) {
       isJumping = true; 
-      rb.AddForce(jumpDirection * (dashPower * 1.3f), ForceMode.Impulse); 
-      //rb.AddForce(gameObject.transform.up * (jumpPower / 30), ForceMode.Impulse); 
-      //rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y + 0.3f, rb.linearVelocity.z);  
+      rb.AddForce(jumpDirection * (dashPower * 1.3f), ForceMode.Impulse);   
     }
 
     void doSlide() { //TODO: FIX SLIDEE 
-      rb.AddForce(transform.forward * slidePower, ForceMode.Force);  
+      isSliding = true; 
+      rb.AddForce(gameObject.transform.forward * slidePower, ForceMode.Impulse);  
     }
 
     void doCrouch() {
@@ -157,6 +159,10 @@ public class PlayerMovement : MonoBehaviour {
       rb.AddForce(gameObject.transform.forward * dashPower, ForceMode.Impulse);
     }
 
+    void doWallDash() {
+      rb.AddForce(gameObject.transform.forward * dashPower, ForceMode.Impulse);  
+    }
+
     void resetDash() {
       isDashing = false;
     }
@@ -164,6 +170,10 @@ public class PlayerMovement : MonoBehaviour {
     void resetJump() {
       isJumping = false; 
       canJump = true; 
+    }
+
+    void resetSlide() {
+      isSliding = false;
     }
 
     void resetWallJump() {
@@ -185,11 +195,11 @@ public class PlayerMovement : MonoBehaviour {
       killInitialWallRunVelocity(); 
       addWallRunInitialVelocity(); 
       resetJump();   
-      Debug.Log("wallrun started"); 
+      Debug.Log("wallrun started");  
       rb.useGravity = false; 
-      isWallRunning = true; 
-      rb.AddForce(gameObject.transform.forward * dashPower, ForceMode.Impulse);
-      rb.AddForce(gameObject.transform.forward * wallRunBonusAmount, ForceMode.Force);
+      isWallRunning = true;   
+      doWallDash(); 
+      rb.AddForce(gameObject.transform.forward * wallRunBonusAmount, ForceMode.Force); 
     }
 
     public void endWallRun() { 

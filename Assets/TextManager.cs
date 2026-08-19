@@ -16,12 +16,8 @@ public class TextManager : MonoBehaviour {
     }
  
     void Update() {
-      timeText.SetText($"{timeObj.time:F3}s / 300s"); 
+      timeText.SetText($"{timeObj.time:F2}s"); 
       movementText.SetText($"{movement.rb.linearVelocity.magnitude:F2} u/s"); 
       pizzaText.SetText($"{pizza.pizza} / 3 pizza"); 
-    }
-
-    void displayScore(TMP_Text scoreText, int score) {
-      scoreText.SetText($"ratig: {score}");
-    }
+    } 
 }

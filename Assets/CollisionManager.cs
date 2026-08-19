@@ -1,29 +1,35 @@
 using UnityEngine;
+using UnityEngine.SceneManagement; 
 
 public class CollisionManager : MonoBehaviour
 {
     public PlayerMovement player; 
+    public ScoreManager score;
 
     void OnCollisionEnter(Collision other) {
       
       Vector3 jumpDir = transform.position - other.contacts[0].point;
-      exportTo(jumpDir); 
+      exportToWallRunJump(jumpDir); 
+
+      Vector3 jumpDir2 = other.contacts[0].point;
+      exportToWallRunDash(jumpDir2);
 
       player.canJump = true; 
      
-      if (other.gameObject.CompareTag("Ground")) {
+      if (other.gameObject.CompareTag("Death")) {
+        Debug.Log("DEATH");
+        //TODO: make this actually kill people 
+      } if (other.gameObject.CompareTag("Ground")) {
         player.onGround = true; 
       } else if (other.gameObject.CompareTag("FinishObj")) {
-        Debug.Log("you won!"); 
-      } else if (other.gameObject.CompareTag("CanWallRun")) { 
-        Debug.Log("starting"); 
+        SceneManager.LoadScene("LevelFinish"); 
+      } else if (other.gameObject.CompareTag("CanWallRun")) {  
         player.startWallRun(); 
       }  
     }
 
     void OnCollisionExit(Collision other) {
-      if (player.isWallRunning && other.gameObject.CompareTag("CanWallRun")) {
-        Debug.Log("ending"); 
+      if (player.isWallRunning && other.gameObject.CompareTag("CanWallRun")) { 
         player.endWallRun();
         player.rb.useGravity = true;  
       } 
@@ -32,8 +38,12 @@ public class CollisionManager : MonoBehaviour
       }
     }
 
-    public void exportTo(Vector3 val) {
+    public void exportToWallRunJump(Vector3 val) {
       player.wallRunJumpDirection = val; 
+    }
+
+    public void exportToWallRunDash(Vector3 val) {
+      player.wallRunDashDirection = val;
     }
 
     void Start() {

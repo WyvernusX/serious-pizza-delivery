@@ -8,8 +8,8 @@ public class ScoreManager : MonoBehaviour
     public TimeManager timeScript;
     public TextManager textScript;
 
-    public int score = 0;
-    public string rating = "Z"; 
+    public static int score = 0;
+    public static string rating = "Z"; 
 
     void Start() {
         
@@ -19,20 +19,21 @@ public class ScoreManager : MonoBehaviour
         
     }
 
-    int calculateScore() {
+    public static int calculateScore() { 
       return (int)(300 - timeScript.time) * pizza.pizza + 100;  
     }
 
-    string calculateRating(int score) {
-      if (score >= 700) {
+    public static string calculateRating(int scoreArg) {
+      Debug.Log("bye"); 
+      if (scoreArg >= 700) {
         return "S"; 
-      } else if (score >= 600) {
+      } else if (scoreArg >= 600) {
         return "A";
-      } else if (score >= 480) {
+      } else if (scoreArg >= 480) {
         return "B";
-      } else if (score >= 300) {
+      } else if (scoreArg >= 300) {
         return "C";
-      } else if (score >= 200) {
+      } else if (scoreArg >= 200) {
         return "D";
       } else {
         return "F";

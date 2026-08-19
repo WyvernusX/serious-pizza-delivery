@@ -27,11 +27,11 @@ public class MenuButtons : MonoBehaviour
         
     }
 
-    public void QuitGame() {
+    public static void QuitGame() {
       Application.Quit();
     }
 
-    public void switchToMain() {
+    public static void switchToMain() {
       SceneManager.LoadScene("UI");
     }
 
@@ -39,7 +39,7 @@ public class MenuButtons : MonoBehaviour
       SceneManager.LoadScene("LevelSelection");
     }
   
-    public void switchToLevel(int levelNum) {
-      SceneManager.LoadScene(dict[levelNum]);
+    public void switchToLevel(string level) {
+      SceneManager.LoadScene(level);
     }
 }

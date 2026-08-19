@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class TimeManager : MonoBehaviour
 {
@@ -9,7 +11,8 @@ public class TimeManager : MonoBehaviour
     }
  
     void Update() { 
- 
+      startTimer(); 
+      checkTimeMax(); 
     }
 
     void FixedUpdate() {
@@ -21,7 +24,7 @@ public class TimeManager : MonoBehaviour
     }
 
     void endTimer() {
-
+      time = 0;
     }
 
     void displayTime() {
@@ -29,8 +32,13 @@ public class TimeManager : MonoBehaviour
     }
 
     void checkTimeMax() {
-      if (time >= 600) {
-        Debug.Log("go die");
+      if (time >= 300) {
+        endTimer(); 
+        Transfer(); 
       }
+    }
+
+    void Transfer() {
+      SceneManager.LoadScene("LevelFinish");      
     }
 }
