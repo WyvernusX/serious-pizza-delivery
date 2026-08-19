@@ -144,7 +144,7 @@ public class PlayerMovement : MonoBehaviour {
       //rb.linearVelocity = new Vector3(rb.linearVelocity.x, rb.linearVelocity.y + 0.3f, rb.linearVelocity.z);  
     }
 
-    void doSlide() {  
+    void doSlide() { //TODO: FIX SLIDEE 
       rb.AddForce(transform.forward * slidePower, ForceMode.Force);  
     }
 

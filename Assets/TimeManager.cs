@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class TimeManager : MonoBehaviour
 {
-    public static float time = 0;
+    public float time = 0;
     void Start()
     {
       
@@ -26,5 +26,11 @@ public class TimeManager : MonoBehaviour
 
     void displayTime() {
       Debug.Log($"{time}");
+    }
+
+    void checkTimeMax() {
+      if (time >= 600) {
+        Debug.Log("go die");
+      }
     }
 }
