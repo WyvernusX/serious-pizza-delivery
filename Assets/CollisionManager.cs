@@ -4,7 +4,8 @@ using UnityEngine.SceneManagement;
 public class CollisionManager : MonoBehaviour
 {
     public PlayerMovement player; 
-    public ScoreManager score;
+    public GameObject panel; 
+    //public ScoreManager score;
 
     void OnCollisionEnter(Collision other) {
       
@@ -17,12 +18,12 @@ public class CollisionManager : MonoBehaviour
       player.canJump = true; 
      
       if (other.gameObject.CompareTag("Death")) {
-        Debug.Log("DEATH");
-        //TODO: make this actually kill people 
+        player.gameObject.transform.position = player.startPos; 
+        Debug.Log("DEATH");  
       } if (other.gameObject.CompareTag("Ground")) {
         player.onGround = true; 
       } else if (other.gameObject.CompareTag("FinishObj")) {
-        SceneManager.LoadScene("LevelFinish"); 
+        panel.SetActive(true); 
       } else if (other.gameObject.CompareTag("CanWallRun")) {  
         player.startWallRun(); 
       }  

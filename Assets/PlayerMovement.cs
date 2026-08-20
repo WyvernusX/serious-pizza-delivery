@@ -39,10 +39,12 @@ public class PlayerMovement : MonoBehaviour {
     bool isDashing = false;  
     public bool canJump = true;
     bool isSliding = false;
-
+    public Vector3 startPos = new Vector3(0, 0, 0); 
+    
     void Start()
     {
       rb = GetComponent<Rigidbody>();   
+      startPos = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, gameObject.transform.position.z); 
     }
 
     void Update() {  
@@ -88,7 +90,7 @@ public class PlayerMovement : MonoBehaviour {
         doDash();
         Invoke("resetDash", dashCooldown); 
       } else if (Input.GetKey(crouchBind)) {
-        checkCrouchOrSlide();
+        doCrouch(); 
       } else if (Input.GetKey(sprintBind)) {
         manageSprintMovement();
       }
