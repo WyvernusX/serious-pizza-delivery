@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEngine.SceneManagement; 
+using TMPro;
 
 public class CollisionManager : MonoBehaviour
 {
     public PlayerMovement player; 
     public GameObject panel; 
+    public int deathAmount;  
     //public ScoreManager score;
 
     void OnCollisionEnter(Collision other) {
@@ -15,12 +17,20 @@ public class CollisionManager : MonoBehaviour
       Vector3 jumpDir2 = other.contacts[0].point;
       exportToWallRunDash(jumpDir2);
 
-      player.canJump = true; 
-     
-      if (other.gameObject.CompareTag("Death")) {
-        player.gameObject.transform.position = player.startPos; 
+      player.canJump = true;
+
+      Scene currentScene = SceneManager.GetActiveScene(); 
+      
+      if (other.gameObject.CompareTag("Death") && !panel.activeInHierarchy) {
+        player.gameObject.transform.position = player.startPos;  
+        deathAmount++; 
         Debug.Log("DEATH");  
-      } if (other.gameObject.CompareTag("Ground")) {
+      } else if (other.gameObject.CompareTag("Ground") && currentScene.name == "LevelTwo") {
+        Debug.Log("refreshing"); 
+        player.resetDash();
+        player.resetJump(); 
+        player.onGround = true; 
+      } else if (other.gameObject.CompareTag("Ground")) {
         player.onGround = true; 
       } else if (other.gameObject.CompareTag("FinishObj")) {
         panel.SetActive(true); 

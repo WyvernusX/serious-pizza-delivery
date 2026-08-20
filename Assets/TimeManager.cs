@@ -5,14 +5,18 @@ using System.Collections.Generic;
 public class TimeManager : MonoBehaviour
 {
     public float time = 0;
+    public bool timeEnded = false; 
+
     void Start()
     {
       
     }
  
     void Update() { 
-      startTimer(); 
-      checkTimeMax(); 
+      if (!timeEnded) {
+        startTimer(); 
+        checkTimeMax();
+      }  
     }
 
     void FixedUpdate() {
@@ -23,8 +27,8 @@ public class TimeManager : MonoBehaviour
       time += Time.deltaTime;
     }
 
-    void endTimer() {
-      time = 0;
+    public void endTimer() {
+      timeEnded = true;  
     }
 
     void displayTime() {

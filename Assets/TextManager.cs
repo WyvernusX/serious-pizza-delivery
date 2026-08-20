@@ -13,6 +13,7 @@ public class TextManager : MonoBehaviour {
     public TMP_Text ratingOutput;
     public TMP_Text scoreOutput;
     public GameObject panel; 
+    public CollisionManager collision;
 
     void Start() {
         
@@ -23,34 +24,37 @@ public class TextManager : MonoBehaviour {
       movementText.SetText($"{movement.rb.linearVelocity.magnitude:F2} u/s"); 
       pizzaText.SetText($"{pizza.pizza} / 3 pizza"); 
       if (panel.activeInHierarchy) {
+        timeObj.endTimer(); 
         displayScore(scoreOutput);     
         displayRating(ratingOutput);
       }   
     }
 
     public int calculateScore() { 
-      return (int)(300 - timeObj.time) * pizza.pizza + 100;  
+      return ((int)((300 - timeObj.time) * pizza.pizza) + 100) / (1 + collision.deathAmount);  
     }
 
     public string calculateRating(int scoreArg) {
       Debug.Log("bye"); 
-      if (scoreArg >= 700) {
+      if (scoreArg >= 900) {
         return "S"; 
-      } else if (scoreArg >= 600) {
+      } else if (scoreArg >= 750) {
         return "A";
-      } else if (scoreArg >= 480) {
+      } else if (scoreArg >= 600) {
         return "B";
-      } else if (scoreArg >= 300) {
+      } else if (scoreArg >= 500) {
         return "C";
-      } else if (scoreArg >= 200) {
+      } else if (scoreArg >= 350) {
         return "D";
-      } else {
+      } else if (scoreArg >= 100) {
         return "F";
+      } else {
+        return "Z";
       }
     }
 
     void displayScore(TMP_Text scoreText) {   
-      scoreText.SetText($"rating: {calculateScore()}");
+      scoreText.SetText($"rating: {calculateScore()}");   
     }
 
     void displayRating(TMP_Text rateText) {
