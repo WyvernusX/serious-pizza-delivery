@@ -34,6 +34,7 @@ public class CollisionManager : MonoBehaviour
         player.onGround = true; 
       } else if (other.gameObject.CompareTag("FinishObj")) {
         panel.SetActive(true); 
+        Cursor.lockState = CursorLockMode.None;  
       } else if (other.gameObject.CompareTag("CanWallRun")) {  
         player.startWallRun(); 
       }  

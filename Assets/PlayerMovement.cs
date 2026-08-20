@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour { 
     
-    /*[Header("Object References")]
-    public GameObject collision;*/ 
+    [Header("Object References")]
+    public GameObject collision; 
 
     [Header("Cooldowns")]
     public float dashCooldown = .5f;
@@ -54,7 +54,8 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void FixedUpdate() {  
-      manageMovement();    
+      manageMovement();   
+      //Debug.Log(rb.linearVelocity.magnitude); 
       /*if (isWallRunning && rb.linearVelocity.magnitude < 1.5f) {
         antiWallRunIdle();
       }*/ 
