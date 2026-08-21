@@ -2,8 +2,9 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour { 
     
-    [Header("Object References")]
+    /*[Header("Object References")]
     public GameObject collision; 
+    public FovManager fov;*/
 
     [Header("Cooldowns")]
     public float dashCooldown = .5f;
@@ -87,7 +88,7 @@ public class PlayerMovement : MonoBehaviour {
 
     void manageSpecialMovement() {  
       if (Input.GetKeyDown(dashBind) && !isDashing) {
-        doDash();
+        doDash(); 
         Invoke("resetDash", dashCooldown); 
       } else if (Input.GetKey(crouchBind)) {
         doCrouch(); 
